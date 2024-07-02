@@ -3,8 +3,7 @@ import * as bcrypt from 'bcryptjs';
 
 export enum UserRole {
   ADMIN = 'admin',
-  USER = 'user',
-  HUSTLER = 'hustler',
+  USER = 'user'
 }
 
 @Entity()
@@ -23,6 +22,9 @@ export class User {
 
   @Column({ type: 'varchar' })
   password: string;
+
+  @Column({ type: 'boolean', default: false })
+  deleted: boolean;
 
   @Column({
     type: 'enum',

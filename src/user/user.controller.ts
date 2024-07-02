@@ -6,11 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  ParseIntPipe,
+  Query,
+  UsePipes,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { AuthGuard } from 'src/auth-middleware/auth.middleware';
+import { AdminAuthGuard } from 'src/auth-middleware/admin-auth.middleware';
+import { FindAllUsersQueryDto } from './dto/get-users.query.dto';
+import { AuthUser } from './custom-docorator/user.decorator';
+import { IUser } from './interface/user.interface';
+import { ExcludePasswordPipe } from './custom-pipe';
 
 @Controller('/')
 export class UserController {
@@ -26,23 +36,28 @@ export class UserController {
     return this.userService.login(loginUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @UseGuards(AdminAuthGuard)
+  @Get('users')
+  @UsePipes(ExcludePasswordPipe)
+  findAll(@Query() query: FindAllUsersQueryDto) {
+    return this.userService.findAll(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @UseGuards(AuthGuard)
+  @Get('users/:id')
+  findOne(@AuthUser() authUser: IUser, @Param('id', ParseIntPipe) id: number) {
+    return this.userService.findOne(id, authUser);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(AuthGuard)
+  @Patch('users/:id')
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(id, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @UseGuards(AuthGuard)
+  @Delete('users/:id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.remove(id);
   }
 }
