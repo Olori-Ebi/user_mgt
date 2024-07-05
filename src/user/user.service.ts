@@ -17,15 +17,25 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     this.logger.log(`Creating a new user for ${createUserDto.full_name}`);
     const { email, user_name } = createUserDto;
 
-    const existingUser = await this.userRepository.createQueryBuilder("user")
-      .select(["user.id", "user.email", "user.role", "user.full_name", "user.user_name"])
-      .where("user.email = :email OR user.user_name = :user_name", { email, user_name })
+    const existingUser = await this.userRepository
+      .createQueryBuilder('user')
+      .select([
+        'user.id',
+        'user.email',
+        'user.role',
+        'user.full_name',
+        'user.user_name',
+      ])
+      .where('user.email = :email OR user.user_name = :user_name', {
+        email,
+        user_name,
+      })
       .getOne();
 
     if (existingUser) {
@@ -59,9 +69,12 @@ export class UserService {
   async login(loginUserDto: LoginUserDto) {
     const { identifier: emailOrUsername, password } = loginUserDto;
 
-    const user = await this.userRepository.createQueryBuilder("user")
+    const user = await this.userRepository
+      .createQueryBuilder('user')
       .select()
-      .where("user.email = :identifier OR user.user_name = :identifier", { identifier: emailOrUsername })
+      .where('user.email = :identifier OR user.user_name = :identifier', {
+        identifier: emailOrUsername,
+      })
       .getOne();
 
     if (!user) {
@@ -84,14 +97,13 @@ export class UserService {
       message: 'Login successful',
       data: { ...user, token },
     };
-
   }
 
   async findAll(authUser: IUser, query: FindAllUsersQueryDto) {
     const { user_name, email, page = 1, limit = 10 } = query;
     const where: any = {
       deleted: false,
-      id: Not(authUser.id)
+      id: Not(authUser.id),
     };
 
     if (user_name) {
@@ -117,7 +129,8 @@ export class UserService {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 
-    const user = await this.userRepository.createQueryBuilder('user')
+    const user = await this.userRepository
+      .createQueryBuilder('user')
       .select(['user.id', 'user.full_name', 'user.email', 'user.role'])
       .where('user.id = :id', { id })
       .getOne();
@@ -133,7 +146,10 @@ export class UserService {
   }
 
   async update(authUser: IUser, id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.validateUserAuthorizationAndReturnUser(id, authUser.id);
+    const user = await this.validateUserAuthorizationAndReturnUser(
+      id,
+      authUser.id,
+    );
 
     if (updateUserDto.email) {
       const existingEmailUser = await this.userRepository.findOneBy({
@@ -149,11 +165,13 @@ export class UserService {
 
     const updatedUser = await this.userRepository.save(user);
     return updatedUser;
-
   }
 
   async remove(id: number, authUser: IUser) {
-    const user = await this.validateUserAuthorizationAndReturnUser(id, authUser.id);
+    const user = await this.validateUserAuthorizationAndReturnUser(
+      id,
+      authUser.id,
+    );
 
     user.deleted = true;
     await this.userRepository.save(user);

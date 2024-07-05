@@ -8,7 +8,6 @@
 - [Configuration](#configuration)
 - [Running the Application](#running-the-application)
 - [Running Tests](#running-tests)
-- [Database Migrations](#database-migrations)
 - [Seeding the Database](#seeding-the-database)
 - [Rate Limiting](#rate-limiting)
 - [Security](#security)
@@ -61,8 +60,21 @@ POSTGRES_PASSWORD=your_postgres_password
 POSTGRES_DATABASE=your_postgres_database
 SECRET=your_secret
 PORT=your_port
+```
 
-### Running the application with Docker
-    ```bash
+## Running the application with Docker
+```bash
     docker-compose up --build
-    ```
+```
+## Running Tests
+```bash
+    npm run test
+```
+
+## Seeding The Database
+- Migrations are ran on the database just before the application starts. Two admin users and two regular users have been seeded for your testing
+
+## API Documentation
+```bash
+    The API Documentation will be available at http://localhost:3000/api/doc
+```
