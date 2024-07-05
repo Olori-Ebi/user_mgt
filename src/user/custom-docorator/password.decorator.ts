@@ -13,11 +13,11 @@ export function IsValidPassword(validationOptions?: ValidationOptions) {
         validate(value: string) {
           const password = value;
           const passwordRegEx =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+            /^[a-zA-Z0-9]{6,20}$/;
           return matches(password, passwordRegEx);
         },
         defaultMessage: () => {
-          return 'Password must contain Minimum 8 and maximum 20 characters, at least one uppercase letter, one lowercase letter, one number and one special character';
+          return 'Password must contain Minimum 6 and maximum 20 characters';
         },
       },
     });

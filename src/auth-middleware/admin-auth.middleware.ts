@@ -8,13 +8,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserRole } from '../user/entities/user.entity';
 import { JwtService } from '../user/jwt.service';
-import { UserService } from '../user/user.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {
   constructor(
-    private readonly userService: UserService,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}

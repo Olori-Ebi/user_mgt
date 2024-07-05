@@ -8,7 +8,6 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
 import { IUser } from './interface/user.interface';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllUsersQueryDto } from './dto/get-users.query.dto';
@@ -27,7 +26,7 @@ describe('UserService', () => {
     createQueryBuilder: jest.fn().mockReturnThis(),
     select: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
-    getOne: jest.fn()
+    getOne: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -43,7 +42,7 @@ describe('UserService', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockReturnValue('test_secret')
+            get: jest.fn().mockReturnValue('test_secret'),
           },
         },
         {
@@ -118,16 +117,18 @@ describe('UserService', () => {
       } as CreateUserDto;
 
       jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashedPassword');
-      jest.spyOn(userRepository, 'create').mockReturnValue(createUserDto as any);
+      jest
+        .spyOn(userRepository, 'create')
+        .mockReturnValue(createUserDto as any);
       jest.spyOn(userRepository, 'save').mockRejectedValue({
-        "statusCode": 409,
-        "timestamp": "2024-07-04T22:47:52.032Z",
-        "path": "/api/users",
-        "message": "Email already exists"
-    });
+        statusCode: 409,
+        timestamp: '2024-07-04T22:47:52.032Z',
+        path: '/api/users',
+        message: 'Email already exists',
+      });
 
       try {
-        const res = await service.create(createUserDto);
+        await service.create(createUserDto);
         fail('Expected create to throw an error for existing email');
       } catch (error) {
         expect(error.statusCode).toBe(HttpStatus.CONFLICT);
@@ -137,7 +138,10 @@ describe('UserService', () => {
   });
   describe('login', () => {
     it('should log in a user with valid credentials', async () => {
-      const loginUserDto = { identifier: 'test@example.com', password: 'Password@123' };
+      const loginUserDto = {
+        identifier: 'test@example.com',
+        password: 'Password@123',
+      };
       const mockUser: User = {
         id: 1,
         email: 'test@example.com',
@@ -148,33 +152,49 @@ describe('UserService', () => {
         deleted: false,
         hashPassword: jest.fn(),
       };
-  
+
       jest.spyOn(userRepository, 'createQueryBuilder').mockReturnThis();
-      jest.spyOn(userRepository.createQueryBuilder(), 'select').mockReturnThis();
+      jest
+        .spyOn(userRepository.createQueryBuilder(), 'select')
+        .mockReturnThis();
       jest.spyOn(userRepository.createQueryBuilder(), 'where').mockReturnThis();
-      jest.spyOn(userRepository.createQueryBuilder(), 'getOne').mockResolvedValue(mockUser);
+      jest
+        .spyOn(userRepository.createQueryBuilder(), 'getOne')
+        .mockResolvedValue(mockUser);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
-      jest.spyOn(jwtService, 'generateAccessToken').mockReturnValue('accessToken');
-  
+      jest
+        .spyOn(jwtService, 'generateAccessToken')
+        .mockReturnValue('accessToken');
+
       await service.login(loginUserDto);
-  
+
       expect(userRepository.createQueryBuilder).toHaveBeenCalledWith('user');
-      expect(bcrypt.compare).toHaveBeenCalledWith('Password@123', 'Hashedpassword@123');
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        'Password@123',
+        'Hashedpassword@123',
+      );
       expect(jwtService.generateAccessToken).toHaveBeenCalledWith({
         id: 1,
         role: 'user',
         email: 'test@example.com',
       });
     });
-  
+
     it('should throw an error for user with invalid credentials', async () => {
-      const loginUserDto = { identifier: 'test1@example.com', password: 'Password@123' };
-  
+      const loginUserDto = {
+        identifier: 'test1@example.com',
+        password: 'Password@123',
+      };
+
       jest.spyOn(userRepository, 'createQueryBuilder').mockReturnThis();
-      jest.spyOn(userRepository.createQueryBuilder(), 'select').mockReturnThis();
+      jest
+        .spyOn(userRepository.createQueryBuilder(), 'select')
+        .mockReturnThis();
       jest.spyOn(userRepository.createQueryBuilder(), 'where').mockReturnThis();
-      jest.spyOn(userRepository.createQueryBuilder(), 'getOne').mockResolvedValue(undefined);
-  
+      jest
+        .spyOn(userRepository.createQueryBuilder(), 'getOne')
+        .mockResolvedValue(undefined);
+
       try {
         await service.login(loginUserDto);
         fail('Expected login to throw an error for invalid credentials');
@@ -186,7 +206,15 @@ describe('UserService', () => {
     });
   });
   describe('findAll', () => {
-    const mockUserAdmin: IUser = { id: 1, email: 'admin@example.com', role: 'admin',  full_name: "admin one", password: "Adminone@123", deleted: false, user_name: 'adminOne'  };
+    const mockUserAdmin: IUser = {
+      id: 1,
+      email: 'admin@example.com',
+      role: 'admin',
+      full_name: 'admin one',
+      password: 'Adminone@123',
+      deleted: false,
+      user_name: 'adminOne',
+    };
 
     it('should fetch users for admin', async () => {
       const query: FindAllUsersQueryDto = {
@@ -197,11 +225,31 @@ describe('UserService', () => {
       };
 
       const mockUsers: Partial<User[]> = [
-        { id: 1, user_name: 'testuser1', email: 'test1@example.com', role: UserRole.USER, full_name: "test one", password: "Testone@123", deleted: false, hashPassword: jest.fn() },
-        { id: 2, user_name: 'testuser2', email: 'test2@example.com', role: UserRole.USER, full_name: "test two", password: "Testtwo@123", deleted: false, hashPassword: jest.fn() },
+        {
+          id: 1,
+          user_name: 'testuser1',
+          email: 'test1@example.com',
+          role: UserRole.USER,
+          full_name: 'test one',
+          password: 'Testone@123',
+          deleted: false,
+          hashPassword: jest.fn(),
+        },
+        {
+          id: 2,
+          user_name: 'testuser2',
+          email: 'test2@example.com',
+          role: UserRole.USER,
+          full_name: 'test two',
+          password: 'Testtwo@123',
+          deleted: false,
+          hashPassword: jest.fn(),
+        },
       ];
 
-      jest.spyOn(userRepository, 'findAndCount').mockResolvedValue([mockUsers, mockUsers.length]);
+      jest
+        .spyOn(userRepository, 'findAndCount')
+        .mockResolvedValue([mockUsers, mockUsers.length]);
 
       const result = await service.findAll(mockUserAdmin, query);
 
@@ -237,8 +285,15 @@ describe('UserService', () => {
 
       expect(result).toEqual(mockUser);
       expect(mockUserRepository.createQueryBuilder).toHaveBeenCalled();
-      expect(mockUserRepository.select).toHaveBeenCalledWith(['user.id', 'user.full_name', 'user.email', 'user.role']);
-      expect(mockUserRepository.where).toHaveBeenCalledWith('user.id = :id', { id: 1 });
+      expect(mockUserRepository.select).toHaveBeenCalledWith([
+        'user.id',
+        'user.full_name',
+        'user.email',
+        'user.role',
+      ]);
+      expect(mockUserRepository.where).toHaveBeenCalledWith('user.id = :id', {
+        id: 1,
+      });
     });
 
     it('should throw HttpException when user is not found', async () => {
@@ -262,8 +317,15 @@ describe('UserService', () => {
       }
 
       expect(mockUserRepository.createQueryBuilder).toHaveBeenCalled();
-      expect(mockUserRepository.select).toHaveBeenCalledWith(['user.id', 'user.full_name', 'user.email', 'user.role']);
-      expect(mockUserRepository.where).toHaveBeenCalledWith('user.id = :id', { id: 1 });
+      expect(mockUserRepository.select).toHaveBeenCalledWith([
+        'user.id',
+        'user.full_name',
+        'user.email',
+        'user.role',
+      ]);
+      expect(mockUserRepository.where).toHaveBeenCalledWith('user.id = :id', {
+        id: 1,
+      });
     });
 
     it('should throw HttpException when user authorization fails', async () => {
@@ -278,7 +340,7 @@ describe('UserService', () => {
       };
 
       try {
-        await service.findOne(1, mockUser );
+        await service.findOne(1, mockUser);
         fail('Expected findOne to throw HttpException');
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException);
@@ -316,7 +378,9 @@ describe('UserService', () => {
       const result = await service.update(mockUser, 1, updateUserDto);
       expect(result).toEqual(updatedUser);
       expect(mockUserRepository.createQueryBuilder).toHaveBeenCalled();
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ email: updateUserDto.email });
+      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({
+        email: updateUserDto.email,
+      });
       expect(mockUserRepository.save).toHaveBeenCalledWith(updatedUser);
     });
 
@@ -348,7 +412,9 @@ describe('UserService', () => {
       }
 
       expect(mockUserRepository.createQueryBuilder).toHaveBeenCalled();
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ email: updateUserDto.email });
+      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({
+        email: updateUserDto.email,
+      });
     });
 
     it('should throw HttpException when user authorization fails', async () => {
@@ -449,4 +515,3 @@ describe('UserService', () => {
     });
   });
 });
-
