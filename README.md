@@ -70,9 +70,13 @@ PORT=your_port
 ```bash
     npm run test
 ```
+-  Test was ran on just before the application starts
 
 ## Seeding The Database
 - Migrations are ran on the database just before the application starts. Two admin users and two regular users have been seeded for your testing
+
+## Rate Limiting
+- Done using @nestjs/throttler where I configured each client to only make up to 2 requests every 10 seconds.
 
 ## API Documentation
 ```bash
