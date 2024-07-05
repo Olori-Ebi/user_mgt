@@ -3,7 +3,7 @@ import * as bcrypt from 'bcryptjs';
 
 export enum UserRole {
   ADMIN = 'admin',
-  USER = 'user'
+  USER = 'user',
 }
 
 @Entity()
@@ -14,10 +14,10 @@ export class User {
   @Column({ type: 'varchar', length: 30 })
   full_name: string;
 
-  @Column({ type: 'varchar', length: 15 })
+  @Column({ type: 'varchar', length: 15, unique: true})
   user_name: string;
 
-  @Column({ type: 'varchar', length: 40 })
+  @Column({ type: 'varchar', length: 40, unique: true })
   email: string;
 
   @Column({ type: 'varchar' })

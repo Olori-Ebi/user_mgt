@@ -1,9 +1,4 @@
-import {
-  registerDecorator,
-  ValidationArguments,
-  ValidationOptions,
-  matches,
-} from 'class-validator';
+import { registerDecorator, ValidationOptions, matches } from 'class-validator';
 
 export function IsValidPassword(validationOptions?: ValidationOptions) {
   // eslint-disable-next-line @typescript-eslint/ban-types
