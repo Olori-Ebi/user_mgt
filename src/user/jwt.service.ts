@@ -16,12 +16,12 @@ export class JwtService {
     });
   }
 
-  verifyToken(hash: string) { 
-    try { 
-      return jwt.verify(hash, this.SECRET); 
+  verifyToken(hash: string) {
+    try {
+      return jwt.verify(hash, this.SECRET);
     } catch (error) {
-      this.logger.log("error occurred verifing token", error.message); 
+      this.logger.log('error occurred verifing token', error.message);
       throw new HttpException('Invalid Hash', HttpStatus.BAD_REQUEST);
-    } 
+    }
   }
 }

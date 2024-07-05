@@ -2,39 +2,40 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user/entities/user.entity';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { LoggerMiddleware } from './auth-middleware/logging.middleware';
 import { UserController } from './user/user.controller';
-
-const config = new ConfigService();
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { dataSourceOptions } from 'data-source';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 10000,
+        limit: 2,
+      },
+    ]),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: config.get('POSTGRES_USER'),
-      password: config.get('POSTGRES_PASSWORD'),
-      database: config.get('POSTGRES_DATABASE'),
-      entities: [User],
-      synchronize: true,
-      logging: false,
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions),
     UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware)
-    .forRoutes(UserController)
+    consumer.apply(LoggerMiddleware).forRoutes(UserController);
   }
 }

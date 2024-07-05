@@ -7,14 +7,16 @@ export class LoggerMiddleware implements NestMiddleware {
       const offuscateRequest = JSON.parse(JSON.stringify(req.body));
       if (offuscateRequest && offuscateRequest.password)
         offuscateRequest.password = '*******';
-        console.log(
-          new Date().toString() +
-            ' - [Request] ' +
-            req.baseUrl +
-            ' - ' +
-            JSON.stringify(offuscateRequest),
-        );
-    } catch (error) {}
+      console.log(
+        new Date().toString() +
+          ' - [Request] ' +
+          req.url +
+          ' - ' +
+          JSON.stringify(offuscateRequest),
+      );
+    } catch (error) {
+      console.error('Error logging request:', error);
+    }
     next();
   }
 }
