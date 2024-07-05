@@ -53,28 +53,55 @@ The User Management System is a backend service built with NestJS, providing fun
 ## Configuration
 Create a `.env` file in the root directory and add the following environment variables:
 ```env
-POSTGRES_HOST=your_postgres_host
-POSTGRES_PORT=your_postgres_port
-POSTGRES_USER=your_postgres_user
-POSTGRES_PASSWORD=your_postgres_password
-POSTGRES_DATABASE=your_postgres_database
-SECRET=your_secret
-PORT=your_port
+POSTGRES_HOST=127.0.0.1
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=mts121101
+POSTGRES_DATABASE=user_management
+SECRET=mysecretkey
+PORT=3000
 ```
 
-## Running the application with Docker
+## Running the application
+#### with Docker
 ```bash
-    docker-compose up --build
+    docker-compose up --build 
 ```
+and server should start on port 3000
+
+#### without Docker
+- Ensure you have PostgreSQL running and a database created with the above configuration.
+- Start the application with the following command
+```bash
+    npm start
+```
+
 ## Running Tests
 ```bash
     npm run test
 ```
 
 ## Seeding The Database
-- Migrations are ran on the database just before the application starts. Two admin users and two regular users have been seeded for your testing
+ Migrations are ran on the database just before the application starts. Two admin users and two regular users have been seeded from the migrations folder for your testing
+
+## Rate Limiting
+ Done using @nestjs/throttler where I configured each client to only make up to 2 requests every 10 seconds.
+```bash
+    ThrottlerModule.forRoot([
+      {
+        ttl: 10000,
+        limit: 2,
+      },
+    ])
+```
 
 ## API Documentation
 ```bash
     The API Documentation will be available at http://localhost:3000/api/doc
 ```
+
+## Contributing
+Contributions are welcome!
+
+## License
+This project is licensed under the MIT License
