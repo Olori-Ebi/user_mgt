@@ -10,6 +10,7 @@ services:
       POSTGRES_DATABASE: user_management
       POSTGRES_HOST: db
       POSTGRES_PORT: 5433
+      SECRET: your_secret
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
